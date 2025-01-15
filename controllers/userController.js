@@ -22,13 +22,13 @@ async function getUser(req, res) {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-}git 
+}
 
 // Create a new user
 async function createUser(req, res) {
   const { username, email, first_name, last_name, created_at } = req.body;
   try {
-    const { data, error } = await supabase.from('users').insert([{ username, email, first_name, last_name, created_at }]);
+    const { data, error } = await supabase.from('users').insert([{username, email, first_name, last_name, created_at }]);
     if (error) throw error;
     res.status(201).json(data);
   } catch (err) {
