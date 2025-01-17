@@ -14,9 +14,9 @@ async function getAllUsers(req, res) {
 
 // Get user by ID
 async function getUser(req, res) {
-  const { id } = req.params;
+  const { username } = req.params;
   try {
-    const { data, error } = await supabase.from('users').select('*').eq('id', id).single();
+    const { data, error } = await supabase.from('users').select('*').eq('username', username).single();
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {
@@ -38,10 +38,10 @@ async function createUser(req, res) {
 
 // Update user by ID
 async function updateUser(req, res) {
-  const { id } = req.params;
-  const { username, email } = req.body;
+  const { username } = req.params;
+  const { email } = req.body;
   try {
-    const { data, error } = await supabase.from('users').update({ username, email }).eq('id', id);
+    const { data, error } = await supabase.from('users').update({ email }).eq('username', username);
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {
@@ -51,9 +51,9 @@ async function updateUser(req, res) {
 
 // Delete user by ID
 async function deleteUser(req, res) {
-  const { id } = req.params;
+  const { username } = req.params;
   try {
-    const { data, error } = await supabase.from('users').delete().eq('id', id);
+    const { data, error } = await supabase.from('users').delete().eq('username', username);
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {
