@@ -18,8 +18,7 @@ async function getUser(req, res) {
 
   try {
     // Query Supabase to fetch user data
-    const { data, error } = await supabase.from('users').select('*').eq('username', username).single();
-
+    const { data, error } = await supabase.from('users').select('*').eq('username', username).single()
     // Check for any errors from Supabase query
     if (error) {
       // Handle specific error scenarios

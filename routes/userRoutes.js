@@ -221,15 +221,15 @@ const router = express.Router();
 router.get('/', getAllUsers);
 
 // Get a single user by ID
-router.get('/:id', getUser);
+router.get('/:username', getUser);
 
 // Create a new user
 router.post('/', createUser);
 
 // Update a user by ID
-router.put('/:id', updateUser);
+router.put('/:username', updateUser);
 
 // Delete a user by ID
-router.delete('/:id', deleteUser);
+router.delete('/:username', deleteUser);
 
 module.exports = router;
