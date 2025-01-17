@@ -26,9 +26,9 @@ async function getUser(req, res) {
 
 // Create a new user
 async function createUser(req, res) {
-  const { username, email, first_name, last_name, created_at } = req.body;
+  const { username, email, created_at } = req.body;
   try {
-    const { data, error } = await supabase.from('users').insert([{username, email, first_name, last_name, created_at }]);
+    const { data, error } = await supabase.from('users').insert([{username, email, created_at }]);
     if (error) throw error;
     res.status(201).json(data);
   } catch (err) {
