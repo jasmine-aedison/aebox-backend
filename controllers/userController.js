@@ -40,16 +40,26 @@ async function getUser(req, res) {
 
 // Create a new user
 async function createUser(req, res) {
-  const { username, email, created_at } = req.body;
+  const { username, email } = req.body;
+  const created_at = new Date().toISOString();
+
   try {
-    const { data, error } = await supabase.from('users').insert([{username, email, created_at }]);
-    if (error) throw error;
+    // Attempt to insert the data
+    const { data, error } = await supabase
+      .from('users')
+      .insert([{ username, email, created_at, subscription_status: 'free' }]);
+
+    console.log('Insert response:', data, error); // Log both data and error
+    if (error) {
+      return res.status(500).json({ message: error.message });
+    }
+    // If no error, respond with the data
     res.status(201).json(data);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Error during user creation:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
-
 // Update user by ID
 async function updateUser(req, res) {
   const { username } = req.params;
