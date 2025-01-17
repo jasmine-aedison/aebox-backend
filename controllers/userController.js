@@ -15,7 +15,7 @@ async function getAllUsers(req, res) {
 // Get user by ID
 async function getUser(req, res) {
   const { username } = req.params;
-  
+
   try {
     // Query Supabase to fetch user data
     const { data, error } = await supabase.from('users').select('*').eq('username', username).single();
@@ -23,17 +23,19 @@ async function getUser(req, res) {
     // Check for any errors from Supabase query
     if (error) {
       // Handle specific error scenarios
-      if (error.code === 'PGRST100') {  // Example code for "no row found"
+      if (error.message.includes('no rows found')) {
         return res.status(404).json({ message: 'User not found' });
       }
-      throw error;  // Rethrow if not a "not found" error
+      // Handle other errors
+      return res.status(500).json({ message: error.message });
     }
+
     // If user data found, return it
     res.status(200).json(data);
   } catch (err) {
     // Catch and handle any other errors (e.g., database issues, bad request)
     console.error(err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 }
 
