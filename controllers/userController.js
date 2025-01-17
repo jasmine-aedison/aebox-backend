@@ -22,7 +22,7 @@ async function getUser(req, res) {
     // Check for any errors from Supabase query
     if (error) {
       // Handle specific error scenarios
-      if (error.message.includes('no rows found')) {
+      if (error.message.includes('JSON object requested, multiple (or no) rows returned')) {
         return res.status(404).json({ message: 'User not found' });
       }
       // Handle other errors
