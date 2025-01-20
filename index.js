@@ -14,15 +14,26 @@ app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 const corsOptions = {
-  origin: 'https://aebox-website.vercel.app', // Frontend URL that you're using
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'https://aebox-website.vercel.app', // Production frontend URL
+      'http://localhost:3000',           // Local development frontend URL
+    ];
+
+    if (allowedOrigins.includes(origin) || !origin) {
+      // Allow requests with no origin (e.g., mobile apps, Postman) or valid origin
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
+
 // Apply CORS middleware with options
 app.use(cors(corsOptions));
-
-
 // Routes
 app.use('/api/users', userRoutes); // Base path for user routes
 app.use('/api/spaces', spaceRoutes); // Base path for space routes

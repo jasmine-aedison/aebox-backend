@@ -217,6 +217,9 @@ router.get('/', getAllSpaces);
 
 // Get a single space by ID
 router.get('/:id', getSpace);
+    
+// Get a single space by username
+router.get('/:username', getSpaceByUsername);
 
 // Create a new space
 router.post('/', createSpace);
