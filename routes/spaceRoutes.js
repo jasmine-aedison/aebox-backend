@@ -1,6 +1,6 @@
 // spaceRoutes.js
 const express = require('express');
-const { getSpace, createSpace, updateSpace, deleteSpace, getAllSpaces } = require('../controllers/spaceController');
+const { getSpace, createSpace, updateSpace, deleteSpace, getAllSpaces, getSpaceByUsername } = require('../controllers/spaceController');
 const router = express.Router();
 
 /**
@@ -217,7 +217,7 @@ router.get('/', getAllSpaces);
 
 // Get a single space by ID
 router.get('/:id', getSpace);
-    
+
 // Get a single space by username
 router.get('/:username', getSpaceByUsername);
 
