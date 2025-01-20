@@ -27,9 +27,10 @@ async function getSpace(req, res) {
 
 // Create a new space
 async function createSpace(req, res) {
-  const { name, description, username } = req.body;
+  const { username } = req.params;
+  const { name, description } = req.body;
   try {
-    const { data, error } = await supabase.from('spaces').insert([{ name, description, username, category:'daily'}]);
+    const { data, error } = await supabase.from('spaces').insert([{ username, name, description , category:'daily'}]);
     if (error) throw error;
     res.status(201).json(data);
   } catch (err) {
@@ -39,28 +40,37 @@ async function createSpace(req, res) {
 
 // Update space by ID
 async function updateSpace(req, res) {
-  const { id } = req.params;
-  const { name, description , category} = req.body;
+  const { username, spaceId } = req.params;
+  const { name, description } = req.body;
   try {
-    const { data, error } = await supabase.from('spaces').update({ name, description, category }).eq('id', id);
-    if (error) throw error;
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const space = await Space.findOne({ where: { username, id: spaceId } });
+    if (space) {
+      space.name = name || space.name;
+      space.description = description || space.description;
+      await space.save();
+      res.status(200).json(space);
+    } else {
+      res.status(404).json({ message: 'Space not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating space', error });
   }
-}
-
+};
 // Delete space by ID
 async function deleteSpace(req, res) {
-  const { id } = req.params;
+  const { username, spaceId } = req.params;
   try {
-    const { data, error } = await supabase.from('spaces').delete().eq('id', id);
-    if (error) throw error;
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const space = await Space.findOne({ where: { username, id: spaceId } });
+    if (space) {
+      await space.destroy();
+      res.status(204).send();
+    } else {
+      res.status(404).json({ message: 'Space not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting space', error });
   }
-}
+};
 
 async function getSpaceByUsername(req, res) {
   const { username } = req.params;
