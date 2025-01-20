@@ -28,9 +28,9 @@ async function getSpace(req, res) {
 // Create a new space
 async function createSpace(req, res) {
   const { username } = req.params;
-  const { name, description } = req.body;
+  const { id, name, description } = req.body;
   try {
-    const { data, error } = await supabase.from('spaces').insert([{ username, name, description , category:'daily'}]);
+    const { data, error } = await supabase.from('spaces').insert([{ id, username, name, description , category:'daily'}]);
     if (error) throw error;
     res.status(201).json(data);
   } catch (err) {
