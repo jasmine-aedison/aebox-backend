@@ -43,7 +43,7 @@ async function updateSpace(req, res) {
   const { username, spaceId } = req.params;
   const { name, description } = req.body;
   try {
-    const space = await Space.findOne({ where: { username, id: spaceId } });
+    const space = await supabase.from('spaces').update({ name, description }).eq('id', id);
     if (space) {
       space.name = name || space.name;
       space.description = description || space.description;
@@ -58,9 +58,9 @@ async function updateSpace(req, res) {
 };
 // Delete space by ID
 async function deleteSpace(req, res) {
-  const { username, spaceId } = req.params;
+  const { username, id } = req.params;
   try {
-    const space = await Space.findOne({ where: { username, id: spaceId } });
+    const space = await supabase.from('spaces').delete().eq('username', username).eq('id', id);
     if (space) {
       await space.destroy();
       res.status(204).send();
