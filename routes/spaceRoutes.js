@@ -216,7 +216,7 @@ const router = express.Router();
 router.get('/', getAllSpaces);
 
 // Get a single space by ID
-router.get('/:userId/:spaceId', getSpace); 
+router.get('/:username/:spaceId', getSpace); 
 
 // Get a single space by username
 router.get('/:username', getSpaceByUsername);
@@ -225,9 +225,9 @@ router.get('/:username', getSpaceByUsername);
 router.post('/:username', createSpace);
 
 // Update a space by ID
-router.put('/:userId/:spaceId', updateSpace);  // Update a space
+router.put('/:username/:spaceId', updateSpace);  // Update a space
 
 // Delete a space by ID
-router.delete('/:userId/:spaceId', deleteSpace);  // Delete a space
+router.delete('/:username/:spaceId', deleteSpace);  // Delete a space
 
 module.exports = router;
