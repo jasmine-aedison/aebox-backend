@@ -33,7 +33,7 @@ async function createSpace(req, res) {
   const numericId = Number(id);
   
   try {
-    const { data, error } = await supabase.from('spaces').insert([{ id: numericId, username, name, description , category:'daily', created_at: new Date().toISOString()}]);
+    const { data, error } = await supabase.from('spaces').insert([{ id: numericId, username, name, description , category, created_at: new Date().toISOString()}]);
     if (error) throw error;
     res.status(201).json(data);
   } catch (err) {
