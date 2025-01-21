@@ -43,10 +43,10 @@ async function createSpace(req, res) {
 
 // Update space by ID
 async function updateSpace(req, res) {
-  const { username, spaceId } = req.params;
+  const { username, id } = req.params;
   const { name, description } = req.body;
   try {
-    const space = await supabase.from('spaces').update({ name, description }).eq('id', id);
+    const space = await supabase.from('spaces').update({ name, description }).eq('id', id).eq('username', username);
     if (space) {
       space.name = name || space.name;
       space.description = description || space.description;
@@ -77,23 +77,26 @@ async function deleteSpace(req, res) {
       .from('spaces')
       .delete()
       .eq('username', username)
-      .eq('id', numericId);
+      .eq('id', numericId)
+      .select();
 
     // Log the data and error for debugging
-    console.log("data", data);
+    console.log("data", data);  // This will give you more context
     console.log("error", error);
 
     if (error) {
       // If there's an error with the query, handle it
       return res.status(500).json({ message: 'Error deleting space', error: error.message });
     }
-    console.log("data", data);
-    
+
+    // Check if a record was actually deleted
     if (data && data.length > 0) {
+      console.log("Space deleted successfully", data);
       // Successfully deleted
       res.status(204).send();
     } else {
-      // No matching record found
+      console.log("No space found to delete");
+      // No matching record found (even though it was deleted)
       res.status(404).json({ message: 'Space not found' });
     }
   } catch (error) {
