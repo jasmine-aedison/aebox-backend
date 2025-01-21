@@ -63,17 +63,26 @@ async function updateSpace(req, res) {
 async function deleteSpace(req, res) {
   const { username, id } = req.params;
   try {
-    const space = await supabase.from('spaces').delete().eq('username', username).eq('id', id);
-    if (space) {
-      await space.destroy();
+    const { data, error } = await supabase
+      .from('spaces')
+      .delete()
+      .eq('username', username)
+      .eq('id', id);
+
+    if (error) throw error;
+
+    if (data.length > 0) {
+      // Successfully deleted
       res.status(204).send();
     } else {
+      // No matching record found
       res.status(404).json({ message: 'Space not found' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting space', error });
+    res.status(500).json({ message: 'Error deleting space', error: error.message });
   }
-};
+}
+
 
 async function getSpaceByUsername(req, res) {
   const { username } = req.params;
