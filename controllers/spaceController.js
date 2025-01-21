@@ -47,17 +47,20 @@ async function updateSpace(req, res) {
   const { name, description } = req.body;
   try {
     // Perform the update operation
-    const { data, error } = await supabase
+    const { data,error } = await supabase
       .from('spaces')
       .update({ name, description })
       .eq('id', id)
-      .eq('username', username);
+      .eq('username', username)
+      .select(); // must remember to select the data to get the updated data
+
+      console.log("data", data);
+      console.log("error", error);
 
     if (error) {
       // If there's an error, handle it
       return res.status(500).json({ message: 'Error updating space', error: error.message });
     }
-
     if (data && data.length > 0) {
       // Successfully updated
       res.status(200).json(data[0]);  // Return the updated space
