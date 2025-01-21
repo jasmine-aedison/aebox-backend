@@ -63,16 +63,32 @@ async function updateSpace(req, res) {
 async function deleteSpace(req, res) {
   const { username, id } = req.params;
   console.log("checking api", username, id);
+
+  // Convert id to a number for comparison
+  const numericId = Number(id);
+
+  if (isNaN(numericId)) {
+    return res.status(400).json({ message: "Invalid id format" });
+  }
+
   try {
+    // Perform the delete operation
     const { data, error } = await supabase
       .from('spaces')
       .delete()
       .eq('username', username)
-      .eq('id', id);
+      .eq('id', numericId);
 
-    if (error) throw error;
+    // Log the data and error for debugging
+    console.log("data", data);
+    console.log("error", error);
 
-    if (data.length > 0) {
+    if (error) {
+      // If there's an error with the query, handle it
+      return res.status(500).json({ message: 'Error deleting space', error: error.message });
+    }
+
+    if (data && data.length > 0) {
       // Successfully deleted
       res.status(204).send();
     } else {
@@ -80,6 +96,7 @@ async function deleteSpace(req, res) {
       res.status(404).json({ message: 'Space not found' });
     }
   } catch (error) {
+    console.error("Error deleting space:", error);
     res.status(500).json({ message: 'Error deleting space', error: error.message });
   }
 }
