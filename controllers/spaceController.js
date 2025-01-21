@@ -28,7 +28,7 @@ async function getSpace(req, res) {
 // Create a new space
 async function createSpace(req, res) {
   const { username } = req.params;
-  const { id, name, description} = req.body;
+  const { id, name, description, category} = req.body;
 
   const numericId = Number(id);
   
