@@ -126,8 +126,8 @@ async function getSpaceByUsername(req, res) {
     const { data, error } = await supabase
       .from('spaces')
       .select('*')
-      .eq('username', username) // Filter by username
-      .single(); // Ensure only one result is returned
+      .eq('username', username) // Filter by usernam
+      
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {
