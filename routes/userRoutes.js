@@ -28,8 +28,6 @@ const router = express.Router();
  *               items:
  *                 type: object
  *                 properties:
- *                   id:
- *                     type: integer
  *                   username:
  *                     type: string
  *                   email:
@@ -44,19 +42,19 @@ const router = express.Router();
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/{username}:
  *   get:
  *     tags:
  *       - Users
- *     summary: Retrieve a single user by ID
- *     description: Fetch a specific user using their unique identifier.
+ *     summary: Retrieve a single user by username
+ *     description: Fetch a specific user using their username.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: username
  *         required: true
- *         description: The unique identifier of the user.
+ *         description: The unique username of the user.
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: A single user object
@@ -65,8 +63,6 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 id:
- *                   type: integer
  *                 username:
  *                   type: string
  *                 email:
@@ -98,6 +94,7 @@ const router = express.Router();
  *             required:
  *               - username
  *               - email
+ *               - password
  *             properties:
  *               username:
  *                 type: string
@@ -113,8 +110,6 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 id:
- *                   type: integer
  *                 username:
  *                   type: string
  *                 email:
@@ -131,19 +126,19 @@ const router = express.Router();
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/{username}:
  *   put:
  *     tags:
  *       - Users
  *     summary: Update an existing user
- *     description: Updates the details of an existing user identified by their ID.
+ *     description: Updates the details of an existing user identified by their username.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: username
  *         required: true
- *         description: The unique identifier of the user.
+ *         description: The unique username of the user.
  *         schema:
- *           type: integer
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -168,8 +163,6 @@ const router = express.Router();
  *             schema:
  *               type: object
  *               properties:
- *                 id:
- *                   type: integer
  *                 username:
  *                   type: string
  *                 email:
@@ -188,19 +181,19 @@ const router = express.Router();
 
 /**
  * @swagger
- * /users/{id}:
+ * /users/{username}:
  *   delete:
  *     tags:
  *       - Users
- *     summary: Delete a user by ID
- *     description: Deletes a user identified by their ID.
+ *     summary: Delete a user by username
+ *     description: Deletes a user identified by their username.
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: username
  *         required: true
- *         description: The unique identifier of the user.
+ *         description: The unique username of the user.
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: User deleted successfully
