@@ -17,7 +17,8 @@ const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = [
       'https://aebox-website.vercel.app', // Production frontend URL
-      'http://localhost:3000',           // Local development frontend URL
+      'http://localhost:3000',  
+               // Local development frontend URL
     ];
 
     if (allowedOrigins.includes(origin) || !origin) {

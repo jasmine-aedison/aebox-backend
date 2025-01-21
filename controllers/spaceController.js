@@ -12,7 +12,6 @@ async function getAllSpaces(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
-
 // Get space by ID
 async function getSpace(req, res) {
   const { id } = req.params;

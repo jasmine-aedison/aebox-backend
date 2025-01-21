@@ -48,7 +48,6 @@ async function createUser(req, res) {
     const { data, error } = await supabase
       .from('users')
       .insert([{ username, email, created_at, subscription_status: 'free' }]);
-
     console.log('Insert response:', data, error); // Log both data and error
     if (error) {
       return res.status(500).json({ message: error.message });
