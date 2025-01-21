@@ -46,19 +46,30 @@ async function updateSpace(req, res) {
   const { username, id } = req.params;
   const { name, description } = req.body;
   try {
-    const space = await supabase.from('spaces').update({ name, description }).eq('id', id).eq('username', username);
-    if (space) {
-      space.name = name || space.name;
-      space.description = description || space.description;
-      await space.save();
-      res.status(200).json(space);
+    // Perform the update operation
+    const { data, error } = await supabase
+      .from('spaces')
+      .update({ name, description })
+      .eq('id', id)
+      .eq('username', username);
+
+    if (error) {
+      // If there's an error, handle it
+      return res.status(500).json({ message: 'Error updating space', error: error.message });
+    }
+
+    if (data && data.length > 0) {
+      // Successfully updated
+      res.status(200).json(data[0]);  // Return the updated space
     } else {
+      // No matching record found
       res.status(404).json({ message: 'Space not found' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Error updating space', error });
+    // Handle any unexpected errors
+    res.status(500).json({ message: 'Error updating space', error: error.message });
   }
-};
+}
 // Delete space by ID
 async function deleteSpace(req, res) {
   const { username, id } = req.params;
