@@ -17,7 +17,7 @@ async function getAllSpaces(req, res) {
 async function getSpace(req, res) {
   const { id } = req.params;
   try {
-    const { data, error } = await supabase.from('spaces').select('*').eq('id', id).single();
+    const { data, error } = await supabase.from('spaces').select('*').eq('id', id);
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {

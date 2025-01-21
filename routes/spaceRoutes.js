@@ -216,7 +216,7 @@ const router = express.Router();
 router.get('/', getAllSpaces);
 
 // Get a single space by ID
-router.get('/:username/:spaceId', getSpace); 
+router.get('/:username/:id', getSpace); 
 
 // Get a single space by username
 router.get('/:username', getSpaceByUsername);
