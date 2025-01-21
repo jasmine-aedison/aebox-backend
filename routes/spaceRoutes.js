@@ -225,9 +225,9 @@ router.get('/:username', getSpaceByUsername);
 router.post('/:username', createSpace);
 
 // Update a space by ID
-router.put('/:username/:spaceId', updateSpace);  // Update a space
+router.put('/:username/:id', updateSpace);  // Update a space
 
 // Delete a space by ID
-router.delete('/:username/:spaceId', deleteSpace);  // Delete a space
+router.delete('/:username/:id', deleteSpace);  // Delete a space
 
 module.exports = router;
