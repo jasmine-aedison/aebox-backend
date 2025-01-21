@@ -87,7 +87,8 @@ async function deleteSpace(req, res) {
       // If there's an error with the query, handle it
       return res.status(500).json({ message: 'Error deleting space', error: error.message });
     }
-
+    console.log("data", data);
+    
     if (data && data.length > 0) {
       // Successfully deleted
       res.status(204).send();
