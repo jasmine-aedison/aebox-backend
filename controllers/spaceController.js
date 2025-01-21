@@ -62,6 +62,7 @@ async function updateSpace(req, res) {
 // Delete space by ID
 async function deleteSpace(req, res) {
   const { username, id } = req.params;
+  console.log("checking api", username, id);
   try {
     const { data, error } = await supabase
       .from('spaces')
