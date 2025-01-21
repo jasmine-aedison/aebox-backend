@@ -20,7 +20,6 @@ const corsOptions = {
       'http://localhost:3000',  
                // Local development frontend URL
     ];
-
     if (allowedOrigins.includes(origin) || !origin) {
       // Allow requests with no origin (e.g., mobile apps, Postman) or valid origin
       callback(null, true);
@@ -31,8 +30,6 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
-
-
 // Apply CORS middleware with options
 app.use(cors(corsOptions));
 // Routes
