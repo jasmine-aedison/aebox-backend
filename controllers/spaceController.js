@@ -134,4 +134,65 @@ async function getSpaceByUsername(req, res) {
   }
 }
 
-module.exports = { getAllSpaces, getSpace, createSpace, updateSpace, deleteSpace, getSpaceByUsername };
+
+// Application-related controllers
+async function getAllApplicationsInBox(req, res) {
+  const { username, boxId } = req.params;
+  // console.log("checking api", username, boxId);
+  try {
+    const { data, error } = await supabase.from('applications').select('*').eq('box_id', boxId).eq('username', username);
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function getApplicationInBox(req, res) {
+  const { username, boxId, applicationId } = req.params;
+  try {
+    // console.log("checking api", username, boxId, applicationId);
+    const { data, error } = await supabase.from('applications').select('*').eq('box_id', boxId).eq('id', applicationId).eq('username', username).select();
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function createApplicationInBox(req, res) {
+  const { username, boxId } = req.params;
+  const { name, category, website } = req.body;
+  try {
+    const { data, error } = (await supabase.from('applications').insert([{ name, category, website, box_id: boxId, username: username }]).select());
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function updateApplicationInBox(req, res) {
+  const { username, boxId, applicationId } = req.params;
+  const { name, category } = req.body;
+  try {
+    const { data, error } = await supabase.from('applications').update({ name, category }).eq('box_id', boxId).eq('id', applicationId).eq('username', username).select();
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function deleteApplicationInBox(req, res) {
+  const { username, boxId, applicationId } = req.params;
+  try {
+    const { data, error } = await supabase.from('applications').delete().eq('box_id', boxId).eq('id', applicationId).eq('username', username).select();
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+module.exports = { getAllSpaces, getSpace, createSpace, updateSpace, deleteSpace, getSpaceByUsername, getAllApplicationsInBox, getApplicationInBox, createApplicationInBox, updateApplicationInBox, deleteApplicationInBox };

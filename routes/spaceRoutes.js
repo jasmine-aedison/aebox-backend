@@ -1,7 +1,7 @@
 // spaceRoutes.js
 const express = require('express');
-const { getSpace, createSpace, updateSpace, deleteSpace, getAllSpaces, getSpaceByUsername } = require('../controllers/spaceController');
 const router = express.Router();
+const { getSpace, createSpace, updateSpace, deleteSpace, getAllSpaces, getSpaceByUsername, getAllApplicationsInBox, getApplicationInBox, createApplicationInBox, updateApplicationInBox, deleteApplicationInBox } = require('../controllers/spaceController');
 
 /**
  * @swagger
@@ -229,5 +229,11 @@ router.put('/:username/:id', updateSpace);  // Update a space
 
 // Delete a space by ID
 router.delete('/:username/:id', deleteSpace);  // Delete a space
+
+router.get('/:username/:boxId/applications', getAllApplicationsInBox); // Get all applications in a box
+router.get('/:username/:boxId/applications/:applicationId', getApplicationInBox); // Get a single application by ID in a box
+router.post('/:username/:boxId/applications', createApplicationInBox); // Create a new application in a box
+router.put('/:username/:boxId/applications/:applicationId', updateApplicationInBox); // Update an application by ID in a box
+router.delete('/:username/:boxId/applications/:applicationId', deleteApplicationInBox); // Delete an application by ID in a box
 
 module.exports = router;
