@@ -142,7 +142,7 @@ async function getAllApplicationsInBox(req, res) {
   try {
     const { data, error } = await supabase.from('applications').select('*').eq('box_id', boxId).eq('username', username).select();
     if (error) throw error;
-    res.status(200).json(data);
+     res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

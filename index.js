@@ -18,6 +18,8 @@ const corsOptions = {
     const allowedOrigins = [
       'https://aebox-website.vercel.app', // Production frontend URL
       'http://localhost:3000',  
+      'https://aebox.vercel.app',
+      'http://localhost:3001',  
                // Local development frontend URL
     ];
     if (allowedOrigins.includes(origin) || !origin) {
