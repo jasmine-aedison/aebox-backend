@@ -20,10 +20,9 @@ const corsOptions = {
       'http://localhost:3000',  
       'https://aebox.vercel.app',
       'http://localhost:3001',  
-               // Local development frontend URL
+      'http://localhost:5173'  // Local development frontend URL
     ];
     if (allowedOrigins.includes(origin) || !origin) {
-      // Allow requests with no origin (e.g., mobile apps, Postman) or valid origin
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
