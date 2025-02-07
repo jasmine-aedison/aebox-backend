@@ -5,7 +5,7 @@ const applicationRoutes = require('./routes/applicationRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const deviceSyncRoutes = require('./routes/deviceSyncRoutes');
 const { swaggerUi, swaggerDocs } = require('./swagger/swagger');
-
+const subscriptionRoutes = require ("./routes/subscriptionRoutes")
 const app = express();
 const cors = require("cors");
 
@@ -39,7 +39,7 @@ app.use('/api/spaces', spaceRoutes); // Base path for space routes
 app.use('/api/applications', applicationRoutes); // Base path for application routes
 app.use('/api/sessions', sessionRoutes); // Base path for session routes
 app.use('/api/devices', deviceSyncRoutes); // Base path for device sync routes
-
+app.use('/api/subscription', subscriptionRoutes)
 // Swagger UI endpoint
 
 // Start the server

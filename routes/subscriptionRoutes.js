@@ -1,10 +1,16 @@
-// subscriptionRoutes.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const subscriptionController = require('../controllers/subscriptionController');
+const subscriptionController = require("../controllers/subscriptionController");
 
-// Subscription routes
-router.get('/:userId', subscriptionController.getSubscription);  // Get user subscription
-router.put('/:userId', subscriptionController.updateSubscription);  // Update user subscription
+// Subscription Routes
+router.post("/:username", subscriptionController.createSubscription);  // Create subscription
+router.get("/:username", subscriptionController.getSubscription);  // Get user subscription
+router.get("/", subscriptionController.getAllSubscriptions);  // Get all subscriptions (admin)
+router.put("/:username", subscriptionController.updateSubscription);  // Update user subscription
+router.delete("/:username", subscriptionController.deleteSubscription);  // Delete subscription
+router.get("/:username/payments", subscriptionController.getPaymentHistory);  // Get payment history
+
+// Stripe Webhook
+router.post("/webhook", express.raw({ type: "application/json" }), subscriptionController.handleStripeWebhook);
 
 module.exports = router;
