@@ -12,5 +12,6 @@ router.get("/:username/payments", subscriptionController.getPaymentHistory);  //
 
 // Stripe Webhook
 router.post("/webhook", express.raw({ type: "application/json" }), subscriptionController.handleStripeWebhook);
+router.post('/checkout', subscriptionController.checkout);
 
 module.exports = router;

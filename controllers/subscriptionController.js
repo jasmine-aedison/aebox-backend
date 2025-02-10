@@ -113,3 +113,39 @@ exports.handleStripeWebhook = async (req, res) => {
     res.status(400).json({ message: "Webhook error", error: error.message });
   }
 };
+
+
+exports.checkout = async (req, res) => {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+  const { email, subscriptionType } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "subscription",
+      line_items: [
+        {
+          price:
+            subscriptionType === "monthly"
+              ? "price_1QqsI0GKByHohIkpms5VH5sX" // Monthly price ID
+              : "price_1QqsGOGKByHohIkpodoC3N7z", // Annual price ID
+          quantity: 1,
+        },
+      ],
+      customer_email: email,
+      success_url: `https://aebox-website.vercel.app/success/subscription?email=${encodeURIComponent(email)}&subscriptionType=${encodeURIComponent(subscriptionType)}`,
+      cancel_url: `https://aebox-website.vercel.app/cancel`,
+    });
+    return res.status(200).json({ checkoutUrl: session.url });
+  } catch (error) {
+    console.error("Stripe error:", error);
+    return res.status(500).json({ message: "Failed to create session" });
+  }
+}
