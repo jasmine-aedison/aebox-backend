@@ -1,0 +1,29 @@
+const {config} = require('dotenv')
+const {createTransport} = require('nodemailer')
+
+
+config(); // Load .env variables
+const email_user  = process.env.EMAIL_USER;
+const email_pass  = process.env.EMAIL_PASS;
+
+const sendEmail = async (to, subject, text) => {
+  const transporter = createTransport({
+    service: 'gmail',
+    auth: {
+      user: email_user,
+      pass: email_pass,
+    },
+  });
+
+  const mailOptions = {
+    from: email_user,
+    to,
+    subject,
+    text,
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
+module.exports = sendEmail;
+;

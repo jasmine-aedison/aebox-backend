@@ -1,4 +1,5 @@
 const { Subscription, PaymentHistory } = require('../models/index');
+const {sendEmail} = require('../services/emailService')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Create a new subscription
@@ -12,6 +13,12 @@ exports.createSubscription = async (req, res) => {
       start_date,
       expiry_date,
     });
+
+    await sendEmail(
+      email,
+      "Your subscription for AeBox is activated",
+      `Thank you for subscribing to AEBox. Your premium ${subscription_type} plan is now active.\n\nYour plan will renew 3 days before ${expiry_date}.`
+    );
     res.status(201).json(newSubscription);
   } catch (error) {
     res.status(400).json({ message: "Failed to create subscription", error: error.message });
@@ -36,24 +43,35 @@ exports.getAllSubscriptions = async (req, res) => {
   }
 };
 
-// Update subscription status, type, or expiry date
 exports.updateSubscription = async (req, res) => {
   try {
     const { subscription_status, subscription_type, expiry_date } = req.body;
-    const updates = {};
+    const { username } = req.params;
 
-    if (subscription_status) updates.subscription_status = subscription_status;
-    if (subscription_type) updates.subscription_type = subscription_type;
-    if (expiry_date) updates.expiry_date = expiry_date;
+    const existingSubscription = await Subscription.getByUsername({ where: { username } });
 
-    const updatedSubscription = await Subscription.updateSubscription(req.params.username, updates);
-    if (!updatedSubscription.length) return res.status(404).json({ message: "Subscription not found" });
-    res.status(200).json(updatedSubscription[0]);
+    if (!existingSubscription) {
+      return res.status(404).json({ message: "Subscription not found" });
+    }
+    // Update only the fields that are provided
+    if (subscription_status) existingSubscription.subscription_status = subscription_status;
+    if (subscription_type) existingSubscription.subscription_type = subscription_type;
+    if (expiry_date) existingSubscription.expiry_date = expiry_date;
+
+    await existingSubscription.save();
+
+    res.status(200).json({ message: "Subscription updated successfully", subscription: existingSubscription });
+    // Send confirmation email
+    await sendEmail(
+      existingSubscription.username,
+      "Your subscription for AeBox is updated",
+      `Your AEBox subscription has been updated.\n\nNew Expiry Date: ${expiry_date}`
+    );
+
   } catch (error) {
     res.status(400).json({ message: "Failed to update subscription", error: error.message });
   }
 };
-
 // Get payment history
 exports.getPaymentHistory = async (req, res) => {
   try {
