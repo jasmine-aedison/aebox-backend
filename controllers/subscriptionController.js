@@ -4,7 +4,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 exports.createOrUpdateSubscription = async (req, res) => {
   try {
-    const { username, subscription_type, subscription_status, start_date, expiry_date } = req.body;
+    const { username, subscription_type, subscription_status, expiry_date } = req.body;
 
     // Check if a subscription exists for this username
     const existingSubscriptions = await Subscription.getByUsername(username);
@@ -35,7 +35,6 @@ exports.createOrUpdateSubscription = async (req, res) => {
         username,
         subscription_type,
         subscription_status,
-        start_date,
         expiry_date,
       });
       
@@ -63,17 +62,16 @@ exports.createOrUpdateSubscription = async (req, res) => {
 // Create a new subscription
 exports.createSubscription = async (req, res) => {
   try {
-    const { username, subscription_type, subscription_status, start_date, expiry_date } = req.body;
+    const { username, subscription_type, subscription_status, expiry_date } = req.body;
     const newSubscription = await Subscription.create({
       username,
       subscription_type,
       subscription_status,
-      start_date,
       expiry_date,
     });
 
     await sendEmail(
-      email,
+      username,
       "Your subscription for AeBox is activated",
       `Thank you for subscribing to AEBox. Your premium ${subscription_type} plan is now active.\n\nYour plan will renew 3 days before ${expiry_date}.`
     );
@@ -197,7 +195,6 @@ exports.handleStripeWebhook = async (req, res) => {
           username,
           subscription_type: eventData.plan?.nickname || "Unknown",
           status: eventData.status,
-          start_date: eventData.start_date ? new Date(eventData.start_date * 1000) : new Date(),
           expiry_date: new Date(eventData.expiry_date * 1000),
         });
         break;
