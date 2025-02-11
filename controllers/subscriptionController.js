@@ -1,6 +1,64 @@
 const { Subscription, PaymentHistory } = require('../models/index');
-const {sendEmail} = require('../services/emailService')
+const sendEmail= require('../services/emailService')
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+exports.createOrUpdateSubscription = async (req, res) => {
+  try {
+    const { username, subscription_type, subscription_status, start_date, expiry_date } = req.body;
+
+    // Check if a subscription exists for this username
+    const existingSubscriptions = await Subscription.getByUsername(username);
+    
+    if (existingSubscriptions && existingSubscriptions.length > 0) {
+      // If a subscription exists, update it with the latest data
+      const updates = {
+        subscription_type: subscription_type,
+        subscription_status: subscription_status,
+        expiry_date: expiry_date,
+      };
+      const updatedSubscription = await Subscription.updateSubscription(username, updates);
+      
+      // Optionally, send an update confirmation email
+      await sendEmail(
+        username, // assuming username is the user's email
+        "Your AeBox Subscription Has Been Updated",
+        `Your AeBox subscription has been updated to a ${subscription_type} plan. \n\nYour subscription will automatically renew 3 days before ${expiry_date}.`
+      );
+      
+      return res.status(200).json({
+        message: "Subscription updated successfully",
+        subscription: updatedSubscription,
+      });
+    } else {
+      // If no subscription exists, create a new one
+      const newSubscription = await Subscription.create({
+        username,
+        subscription_type,
+        subscription_status,
+        start_date,
+        expiry_date,
+      });
+      
+      // Optionally, send a confirmation email for the new subscription
+      await sendEmail(
+        username,
+        "Your AeBox Subscription Is Active",
+        `Thank you for subscribing to AeBox. Your ${subscription_type} plan is now active. \n\nYour subscription will automatically renew 3 days before ${expiry_date}.`
+      );
+      
+      return res.status(201).json({
+        message: "Subscription created successfully",
+        subscription: newSubscription,
+      });
+    }
+  } catch (error) {
+    console.error("Error in createOrUpdateSubscription:", error);
+    return res.status(400).json({
+      message: "Failed to process subscription",
+      error: error.message,
+    });
+  }
+};
 
 // Create a new subscription
 exports.createSubscription = async (req, res) => {
@@ -46,21 +104,44 @@ exports.getAllSubscriptions = async (req, res) => {
 exports.updateSubscription = async (req, res) => {
   try {
     const { subscription_status, subscription_type, expiry_date } = req.body;
-    const { username } = req.params;
+    const username = req.params.username;
 
-    const existingSubscription = await Subscription.getByUsername({ where: { username } });
-
-    if (!existingSubscription) {
-      return res.status(404).json({ message: "Subscription not found" });
+    // ✅ Check if the subscription exists
+    const { data: existingSubscription, error: fetchError } = await Subscription.getByUsername(req.params.username);
+    if (fetchError && fetchError.code !== "PGRST116") {
+      // "PGRST116" is Supabase error for "no rows found"
+      throw fetchError;
     }
-    // Update only the fields that are provided
-    if (subscription_status) existingSubscription.subscription_status = subscription_status;
-    if (subscription_type) existingSubscription.subscription_type = subscription_type;
-    if (expiry_date) existingSubscription.expiry_date = expiry_date;
 
-    await existingSubscription.save();
+    if (existingSubscription) {
+      // ✅ Update existing subscription
+      const { error: updateError } = await supabase
+        .from("subscriptions")
+        .update({
+          subscription_status: subscription_status || existingSubscription.subscription_status,
+          subscription_type: subscription_type || existingSubscription.subscription_type,
+          expiry_date: expiry_date || existingSubscription.expiry_date,
+        })
+        .eq("username", username);
 
-    res.status(200).json({ message: "Subscription updated successfully", subscription: existingSubscription });
+      if (updateError) throw updateError;
+
+      return res.status(200).json({ message: "Subscription updated successfully" });
+    } else {
+      // ✅ Insert new subscription if not exists
+      const { error: insertError } = await supabase
+        .from("subscriptions")
+        .insert([
+          {
+            username,
+            subscription_status,
+            subscription_type,
+            expiry_date,
+          },
+        ]);
+
+    if (insertError) throw insertError;
+
     // Send confirmation email
     await sendEmail(
       existingSubscription.username,
@@ -68,9 +149,12 @@ exports.updateSubscription = async (req, res) => {
       `Your AEBox subscription has been updated.\n\nNew Expiry Date: ${expiry_date}`
     );
 
-  } catch (error) {
-    res.status(400).json({ message: "Failed to update subscription", error: error.message });
+    return res.status(201).json({ message: "New subscription created successfully" });
+
   }
+} catch (error) {
+  res.status(400).json({ message: "Failed to update subscription", error: error.message });
+}
 };
 // Get payment history
 exports.getPaymentHistory = async (req, res) => {

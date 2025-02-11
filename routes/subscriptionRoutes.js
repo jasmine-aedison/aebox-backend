@@ -8,7 +8,7 @@ router.post('/checkout', subscriptionController.checkout);
 router.post("/:username", subscriptionController.createSubscription);  // Create subscription
 router.get("/:username", subscriptionController.getSubscription);  // Get user subscription
 router.get("/", subscriptionController.getAllSubscriptions);  // Get all subscriptions (admin)
-router.put("/:username", subscriptionController.updateSubscription);  // Update user subscription
+router.put("/:username", subscriptionController.createOrUpdateSubscription);  // Update user subscription
 router.delete("/:username", subscriptionController.deleteSubscription);  // Delete subscription
 router.get("/:username/payments", subscriptionController.getPaymentHistory);  // Get payment history
 
