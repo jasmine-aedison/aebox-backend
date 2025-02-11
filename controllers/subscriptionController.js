@@ -120,9 +120,9 @@ exports.checkout = async (req, res) => {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-  const { email, subscriptionType } = req.body;
-
-  if (!email) {
+  const { username , subscriptionType } = req.body
+  console.log(username, subscriptionType, "inside the subscriiption controller")
+  if (!username) {
     return res.status(400).json({ message: "Email is required." });
   }
 
@@ -139,8 +139,8 @@ exports.checkout = async (req, res) => {
           quantity: 1,
         },
       ],
-      customer_email: email,
-      success_url: `https://aebox-website.vercel.app/success/subscription?email=${encodeURIComponent(email)}&subscriptionType=${encodeURIComponent(subscriptionType)}`,
+      customer_email: username,
+      success_url: `https://aebox-website.vercel.app/success/subscription?email=${encodeURIComponent(username)}&subscriptionType=${encodeURIComponent(subscriptionType)}`,
       cancel_url: `https://aebox-website.vercel.app/cancel`,
     });
     return res.status(200).json({ checkoutUrl: session.url });
