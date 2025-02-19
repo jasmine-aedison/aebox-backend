@@ -61,4 +61,18 @@ async function deleteApplication(req, res) {
   }
 }
 
-module.exports = { getAllApplications, getApplication, createApplication, updateApplication, deleteApplication };
+// getapplications by box id 
+
+async function getApplicationsByBoxId(req, res) {
+  const { box_id } = req.params;
+  try {
+    const { data, error } = await supabase.from('applications').select('*').eq('box_id', box_id).select();
+    if (error) throw error;
+    res.status(200).json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+
+module.exports = { getAllApplications, getApplication, createApplication, updateApplication, deleteApplication, getApplicationsByBoxId };

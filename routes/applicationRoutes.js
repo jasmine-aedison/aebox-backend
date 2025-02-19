@@ -1,6 +1,6 @@
 // applicationRoutes.js
 const express = require('express');
-const { getApplication, createApplication, updateApplication, deleteApplication, getAllApplications } = require('../controllers/applicationController');
+const { getApplication, createApplication, updateApplication, deleteApplication, getAllApplications, getApplicationsByBoxId } = require('../controllers/applicationController');
 const router = express.Router();
 
 /**
@@ -226,6 +226,8 @@ router.put('/:id', updateApplication);
 
 // Delete an application by ID
 router.delete('/:id', deleteApplication);
+
+router.get('/box/:box_id' , getApplicationsByBoxId)
 
 module.exports = router;
 // 
