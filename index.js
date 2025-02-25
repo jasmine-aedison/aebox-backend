@@ -8,6 +8,7 @@ const { swaggerUi, swaggerDocs } = require('./swagger/swagger');
 const subscriptionRoutes = require ("./routes/subscriptionRoutes")
 const app = express();
 const cors = require("cors");
+const openaiRoutes = require("./routes/openaiRoutes");
 
 // Middleware
 app.use(express.json());
@@ -40,7 +41,7 @@ app.use('/api/applications', applicationRoutes); // Base path for application ro
 app.use('/api/sessions', sessionRoutes); // Base path for session routes
 app.use('/api/devices', deviceSyncRoutes); // Base path for device sync routes
 app.use('/api/subscription', subscriptionRoutes)
-
+app.use("/api/openai", openaiRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5001;
