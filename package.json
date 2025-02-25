@@ -17,6 +17,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemailer": "^6.10.0",
+    "openai": "^4.85.4",
     "pg": "^8.13.1",
     "sequelize": "^6.37.5",
     "stripe": "^17.6.0",

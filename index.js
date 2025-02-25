@@ -40,7 +40,7 @@ app.use('/api/applications', applicationRoutes); // Base path for application ro
 app.use('/api/sessions', sessionRoutes); // Base path for session routes
 app.use('/api/devices', deviceSyncRoutes); // Base path for device sync routes
 app.use('/api/subscription', subscriptionRoutes)
-// Swagger UI endpoint
+
 
 // Start the server
 const PORT = process.env.PORT || 5001;

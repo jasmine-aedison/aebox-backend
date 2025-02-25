@@ -162,9 +162,9 @@ async function getApplicationInBox(req, res) {
 
 async function createApplicationInBox(req, res) {
   const { username, boxId } = req.params;
-  const { name, category, website } = req.body;
+  const { name, category, website, icon } = req.body;
   try {
-    const { data, error } = (await supabase.from('applications').insert([{ name, category, website, box_id: boxId, username: username }]).select());
+    const { data, error } = (await supabase.from('applications').insert([{ name, category, website, box_id: boxId, username: username, icon }]).select());
     if (error) throw error;
     res.status(201).json(data);
   } catch (err) {
