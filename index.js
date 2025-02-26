@@ -9,8 +9,11 @@ const subscriptionRoutes = require ("./routes/subscriptionRoutes")
 const app = express();
 const cors = require("cors");
 const openaiRoutes = require("./routes/openaiRoutes");
+const bodyParser = require("body-parser");
 
 // Middleware
+app.use(bodyParser.json({limit: '2mb'}));
+app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
