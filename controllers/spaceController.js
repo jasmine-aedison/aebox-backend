@@ -43,12 +43,12 @@ async function createSpace(req, res) {
 // Update space by ID
 async function updateSpace(req, res) {
   const { username, id } = req.params;
-  const { name, description } = req.body;
+  const { name, description, category } = req.body;
   try {
     // Perform the update operation
     const { data,error } = await supabase
       .from('spaces')
-      .update({ name, description })
+      .update({ name, description, category })
       .eq('id', id)
       .eq('username', username)
       .select(); // must remember to select the data to get the updated data
