@@ -174,9 +174,9 @@ async function createApplicationInBox(req, res) {
 
 async function updateApplicationInBox(req, res) {
   const { username, boxId, applicationId } = req.params;
-  const { name, category } = req.body;
+  const { name, category, icon, website } = req.body;
   try {
-    const { data, error } = await supabase.from('applications').update({ name, category }).eq('box_id', boxId).eq('id', applicationId).eq('username', username).select();
+    const { data, error } = await supabase.from('applications').update({ name, category, icon, website }).eq('box_id', boxId).eq('id', applicationId).eq('username', username).select();
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {
