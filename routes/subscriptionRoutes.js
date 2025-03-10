@@ -12,6 +12,4 @@ router.put("/:username", subscriptionController.createOrUpdateSubscription);  //
 router.delete("/:username", subscriptionController.deleteSubscription);  // Delete subscription
 router.get("/:username/payments", subscriptionController.getPaymentHistory);  // Get payment history
 
-
-
 module.exports = router;

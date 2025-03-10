@@ -1,14 +1,15 @@
-const { Subscription, PaymentHistory } = require('../models/index');
-const sendEmail= require('../services/emailService')
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { Subscription, PaymentHistory } = require("../models/index");
+const sendEmail = require("../services/emailService");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.createOrUpdateSubscription = async (req, res) => {
   try {
-    const { username, subscription_type, subscription_status, expiry_date } = req.body;
+    const { username, subscription_type, subscription_status, expiry_date } =
+      req.body;
 
     // Check if a subscription exists for this username
     const existingSubscriptions = await Subscription.getByUsername(username);
-    
+
     if (existingSubscriptions && existingSubscriptions.length > 0) {
       // If a subscription exists, update it with the latest data
       const updates = {
@@ -16,15 +17,18 @@ exports.createOrUpdateSubscription = async (req, res) => {
         subscription_status: subscription_status,
         expiry_date: expiry_date,
       };
-      const updatedSubscription = await Subscription.updateSubscription(username, updates);
-      
+      const updatedSubscription = await Subscription.updateSubscription(
+        username,
+        updates
+      );
+
       // Optionally, send an update confirmation email
       await sendEmail(
         username, // assuming username is the user's email
         "Your AeBox Subscription Has Been Updated",
         `Your AeBox subscription has been updated to a ${subscription_type} plan. \n\nYour subscription will automatically renew 3 days before ${expiry_date}.`
       );
-      
+
       return res.status(200).json({
         message: "Subscription updated successfully",
         subscription: updatedSubscription,
@@ -37,14 +41,14 @@ exports.createOrUpdateSubscription = async (req, res) => {
         subscription_status,
         expiry_date,
       });
-      
+
       // Optionally, send a confirmation email for the new subscription
       await sendEmail(
         username,
         "Your AeBox Subscription Is Active",
         `Thank you for subscribing to AeBox. Your ${subscription_type} plan is now active. \n\nYour subscription will automatically renew 3 days before ${expiry_date}.`
       );
-      
+
       return res.status(201).json({
         message: "Subscription created successfully",
         subscription: newSubscription,
@@ -62,7 +66,8 @@ exports.createOrUpdateSubscription = async (req, res) => {
 // Create a new subscription
 exports.createSubscription = async (req, res) => {
   try {
-    const { username, subscription_type, subscription_status, expiry_date } = req.body;
+    const { username, subscription_type, subscription_status, expiry_date } =
+      req.body;
     const newSubscription = await Subscription.create({
       username,
       subscription_type,
@@ -77,7 +82,9 @@ exports.createSubscription = async (req, res) => {
     );
     res.status(201).json(newSubscription);
   } catch (error) {
-    res.status(400).json({ message: "Failed to create subscription", error: error.message });
+    res
+      .status(400)
+      .json({ message: "Failed to create subscription", error: error.message });
   }
 };
 
@@ -95,7 +102,9 @@ exports.getAllSubscriptions = async (req, res) => {
     const subscriptions = await Subscription.getAll();
     res.status(200).json(subscriptions);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching subscriptions", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching subscriptions", error: error.message });
   }
 };
 
@@ -105,7 +114,8 @@ exports.updateSubscription = async (req, res) => {
     const username = req.params.username;
 
     // ✅ Check if the subscription exists
-    const { data: existingSubscription, error: fetchError } = await Subscription.getByUsername(req.params.username);
+    const { data: existingSubscription, error: fetchError } =
+      await Subscription.getByUsername(req.params.username);
     if (fetchError && fetchError.code !== "PGRST116") {
       // "PGRST116" is Supabase error for "no rows found"
       throw fetchError;
@@ -116,15 +126,19 @@ exports.updateSubscription = async (req, res) => {
       const { error: updateError } = await supabase
         .from("subscriptions")
         .update({
-          subscription_status: subscription_status || existingSubscription.subscription_status,
-          subscription_type: subscription_type || existingSubscription.subscription_type,
+          subscription_status:
+            subscription_status || existingSubscription.subscription_status,
+          subscription_type:
+            subscription_type || existingSubscription.subscription_type,
           expiry_date: expiry_date || existingSubscription.expiry_date,
         })
         .eq("username", username);
 
       if (updateError) throw updateError;
 
-      return res.status(200).json({ message: "Subscription updated successfully" });
+      return res
+        .status(200)
+        .json({ message: "Subscription updated successfully" });
     } else {
       // ✅ Insert new subscription if not exists
       const { error: insertError } = await supabase
@@ -138,21 +152,24 @@ exports.updateSubscription = async (req, res) => {
           },
         ]);
 
-    if (insertError) throw insertError;
+      if (insertError) throw insertError;
 
-    // Send confirmation email
-    await sendEmail(
-      existingSubscription.username,
-      "Your subscription for AeBox is updated",
-      `Your AEBox subscription has been updated.\n\nNew Expiry Date: ${expiry_date}`
-    );
+      // Send confirmation email
+      await sendEmail(
+        existingSubscription.username,
+        "Your subscription for AeBox is updated",
+        `Your AEBox subscription has been updated.\n\nNew Expiry Date: ${expiry_date}`
+      );
 
-    return res.status(201).json({ message: "New subscription created successfully" });
-
+      return res
+        .status(201)
+        .json({ message: "New subscription created successfully" });
+    }
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Failed to update subscription", error: error.message });
   }
-} catch (error) {
-  res.status(400).json({ message: "Failed to update subscription", error: error.message });
-}
 };
 // Get payment history
 exports.getPaymentHistory = async (req, res) => {
@@ -161,46 +178,90 @@ exports.getPaymentHistory = async (req, res) => {
     const paymentHistory = await PaymentHistory.getByUsername(username);
     res.status(200).json(paymentHistory);
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving payment history", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error retrieving payment history",
+        error: error.message,
+      });
   }
 };
 
 // Delete a subscription
 exports.deleteSubscription = async (req, res) => {
   try {
-    const deletedSubscription = await Subscription.deleteByUsername(req.params.username);
-    if (!deletedSubscription.length) return res.status(404).json({ message: "Subscription not found" });
+    const deletedSubscription = await Subscription.deleteByUsername(
+      req.params.username
+    );
+    if (!deletedSubscription.length)
+      return res.status(404).json({ message: "Subscription not found" });
     res.status(200).json({ message: "Subscription deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to delete subscription", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to delete subscription", error: error.message });
   }
 };
 // Handle Stripe Webhook Events
 exports.handleStripeWebhook = async (req, res) => {
   const sig = req.headers["stripe-signature"];
-
   try {
-    const event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    const event = stripe.webhooks.constructEvent(
+      req.rawBody,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
     const eventData = event.data.object;
-    const userId = eventData.metadata?.userId;
+    console.log(eventData, "Received Stripe Webhook Event");
 
-    if (!userId) {
-      return res.status(400).json({ message: "Missing userId in webhook metadata" });
+    const customerId = eventData.customer;
+    if (!customerId) {
+      return res
+        .status(400)
+        .json({ message: "Missing customer ID in webhook data" });
     }
 
     switch (event.type) {
-      case "customer.subscription.created":
-      case "customer.subscription.updated":
-        await Subscription.upsert({
-          username,
-          subscription_type: eventData.plan?.nickname || "Unknown",
-          status: eventData.status,
-          expiry_date: new Date(eventData.expiry_date * 1000),
-        });
-        break;
+      case "payment_intent.succeeded":
+        // Fetch customer details for email
+        const customer = await stripe.customers.retrieve(customerId);
+        const customerEmail = customer.email || eventData.receipt_email;
 
+        if (!customerEmail) {
+          console.error("Customer email not found for:", customerId);
+          return res.status(400).json({ message: "Customer email not found" });
+        }
+
+        let subscriptionType = "Unknown";
+        let expiryDate = null;
+
+        if (eventData.invoice) {
+          // Fetch invoice details to get subscription details
+          const invoice = await stripe.invoices.retrieve(eventData.invoice);
+          if (invoice.subscription) {
+            const subscription = await stripe.subscriptions.retrieve(
+              invoice.subscription
+            );
+            const plan = subscription.items.data[0].plan;
+            subscriptionType =
+              plan?.interval === "month" ? "monthly" : "annual";
+            expiryDate = new Date(subscription.current_period_end * 1000); // Convert Unix timestamp to Date
+          }
+        }
+        // Update or create subscription record
+        await Subscription.upsert({
+          customer_id: customerId,
+          email: customerEmail,
+          subscription_type: subscriptionType,
+          status: eventData.status,
+          expiry_date: expiryDate,
+        });
+
+        console.log("Subscription updated for:", customerEmail);
+        break;
+      // Handle other event types as needed...
       case "customer.subscription.deleted":
-        await Subscription.deleteByUsername(username);
+        await Subscription.deleteByUsername(eventData.customer_email);
         break;
 
       default:
@@ -213,14 +274,17 @@ exports.handleStripeWebhook = async (req, res) => {
   }
 };
 
-
 exports.checkout = async (req, res) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-  const { username , subscriptionType } = req.body
-  console.log(username, subscriptionType, "inside the subscriiption controller")
+  const { username, subscriptionType } = req.body;
+  console.log(
+    username,
+    subscriptionType,
+    "inside the subscriiption controller"
+  );
   if (!username) {
     return res.status(400).json({ message: "Email is required." });
   }
@@ -239,7 +303,9 @@ exports.checkout = async (req, res) => {
         },
       ],
       customer_email: username,
-      success_url: `https://aebox-website.vercel.app/success/subscription?email=${encodeURIComponent(username)}&subscriptionType=${encodeURIComponent(subscriptionType)}`,
+      success_url: `https://aebox-website.vercel.app/success/subscription?email=${encodeURIComponent(
+        username
+      )}&subscriptionType=${encodeURIComponent(subscriptionType)}`,
       cancel_url: `https://aebox-website.vercel.app/cancel`,
     });
     return res.status(200).json({ checkoutUrl: session.url });
@@ -247,4 +313,4 @@ exports.checkout = async (req, res) => {
     console.error("Stripe error:", error);
     return res.status(500).json({ message: "Failed to create session" });
   }
-}
+};
