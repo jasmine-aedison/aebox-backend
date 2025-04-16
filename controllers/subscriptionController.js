@@ -218,12 +218,10 @@ exports.handleStripeWebhook = async (req, res) => {
     console.error("📦 Raw body (string):", req.body.toString('utf8'));
     return res.status(400).json({ message: "Invalid webhook signature" });
   }
-
   const { type: eventType, data } = event;
   const eventData = data.object;
   console.log(`📨 Received event type: ${eventType}`);
   console.log(eventData)
-
   try {
     const customerId = eventData?.customer;
     if (!customerId) {
@@ -234,7 +232,7 @@ exports.handleStripeWebhook = async (req, res) => {
     switch (eventType) {
       case "payment_intent.succeeded": {
         const customer = await stripe.customers.retrieve(customerId);
-        const customerEmail = customer?.email || eventData?.customer_email;
+        const customerEmail = customer?.email || eventData?.receipt_email;
 
         if (!customerEmail) {
           console.error("⚠️ Customer email not found for:", customerId);
@@ -250,6 +248,7 @@ exports.handleStripeWebhook = async (req, res) => {
             const subscription = await stripe.subscriptions.retrieve(
               invoice.subscription
             );
+            console.log('subscription data', subscription)
 
             const plan = subscription?.items?.data?.[0]?.plan;
             subscriptionType =
@@ -268,7 +267,6 @@ exports.handleStripeWebhook = async (req, res) => {
           subscription_type: subscriptionType,
           expiry_date: expiryDate,
         });
-
         console.log(`✅ Subscription updated for ${customerEmail}`);
         break;
       }
