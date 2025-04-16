@@ -12,11 +12,30 @@ const cors = require("cors");
 const openaiRoutes = require("./routes/openaiRoutes");
 const bodyParser = require("body-parser");
 
+// app.post(
+//   '/api/subscription/webhook',
+//   express.raw({ type: 'application/json' }), // this keeps the body as a Buffer
+//   subscriptionController.handleStripeWebhook
+// );
+
 app.post(
   '/api/subscription/webhook',
-  express.raw({ type: 'application/json' }), // this keeps the body as a Buffer
+  express.raw({ type: 'application/json' }), // Keeps the body as a Buffer for Stripe signature validation
+  (req, res, next) => {
+    console.log("🚀 Incoming Webhook Headers:", req.headers);
+
+    const signature = req.headers["stripe-signature"];
+    if (!signature) {
+      console.error("❌ Missing stripe-signature header!");
+      return res.status(400).send("Missing stripe-signature header.");
+    }
+
+    // If the header is present, pass control to the actual controller
+    next();
+  },
   subscriptionController.handleStripeWebhook
 );
+
 // app.post('api/subscription/webhook', express.raw({ type: 'application/json' }), subscriptionController.handleStripeWebhook);
 
 // Middleware

@@ -204,9 +204,7 @@ exports.deleteSubscription = async (req, res) => {
 // Handle Stripe Webhook Events
 exports.handleStripeWebhook = async (req, res) => {
   console.log("✅ Stripe webhook endpoint hit");
-
   const sig = req.headers["stripe-signature"];
-
   let event;
   try {
     event = stripe.webhooks.constructEvent(
@@ -215,7 +213,6 @@ exports.handleStripeWebhook = async (req, res) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error("❌ Webhook signature verification failed:", err.message);
     console.error("❌ Webhook signature verification failed:", err.message);
     console.error("🔍 Headers:", req.headers);
     console.error("📦 Raw body (string):", req.body.toString('utf8'));
@@ -234,7 +231,6 @@ exports.handleStripeWebhook = async (req, res) => {
       console.debug("🧾 Full event data:", JSON.stringify(eventData, null, 2));
       return res.status(200).json({ received: true }); // still return 200 to acknowledge receipt
     }
-
     switch (eventType) {
       case "payment_intent.succeeded": {
         const customer = await stripe.customers.retrieve(customerId);
