@@ -15,6 +15,12 @@ const bodyParser = require("body-parser");
 // Middleware
 app.use(bodyParser.json({limit: '2mb'}));
 app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  subscriptionController.handleStripeWebhook
+);
+
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
@@ -27,11 +33,6 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-app.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  subscriptionController.handleStripeWebhook
-);
 
 
 const corsOptions = {
