@@ -27,7 +27,7 @@ const corsOptions = {
       'http://localhost:5173',  // Local development frontend URL
       'app://.', 'file://',
       "https://www.aeedison.com",
-      "https://aeedison.com"
+      "https://aeedison.com",
     ];
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
