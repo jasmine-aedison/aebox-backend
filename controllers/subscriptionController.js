@@ -238,7 +238,7 @@ exports.handleStripeWebhook = async (req, res) => {
     switch (eventType) {
       case "payment_intent.succeeded": {
         const customer = await stripe.customers.retrieve(customerId);
-        const customerEmail = customer?.email || eventData?.receipt_email;
+        const customerEmail = customer?.email || eventData?.customer_email;
 
         if (!customerEmail) {
           console.error("⚠️ Customer email not found for:", customerId);
@@ -267,10 +267,9 @@ exports.handleStripeWebhook = async (req, res) => {
         }
 
         await Subscription.upsert({
-          customer_id: customerId,
-          email: customerEmail,
+          username: customerEmail,
+          subscription_status: 'active',
           subscription_type: subscriptionType,
-          status: eventData.status,
           expiry_date: expiryDate,
         });
 

@@ -103,7 +103,6 @@ const Subscription = {
       .from("subscriptions")
       .insert([data])
       .select();
-
     if (insertError) throw insertError;
     return newSubscription;
   },
