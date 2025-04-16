@@ -17,6 +17,16 @@ app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
+// ✅ Root and Health Routes (for uptime monitoring)
+app.get('/', (req, res) => {
+  res.send('AEBox backend is up and running');
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+
 const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = [
