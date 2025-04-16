@@ -216,6 +216,9 @@ exports.handleStripeWebhook = async (req, res) => {
     );
   } catch (err) {
     console.error("❌ Webhook signature verification failed:", err.message);
+    console.error("❌ Webhook signature verification failed:", err.message);
+    console.error("🔍 Headers:", req.headers);
+    console.error("📦 Raw body (string):", req.body.toString('utf8'));
     return res.status(400).json({ message: "Invalid webhook signature" });
   }
 
