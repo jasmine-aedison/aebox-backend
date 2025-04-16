@@ -3,6 +3,7 @@ const userRoutes = require('./routes/userRoutes');
 const spaceRoutes = require('./routes/spaceRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
+const subscriptionController = require('./controllers/subscriptionController')
 const deviceSyncRoutes = require('./routes/deviceSyncRoutes');
 const { swaggerUi, swaggerDocs } = require('./swagger/swagger');
 const subscriptionRoutes = require ("./routes/subscriptionRoutes")
@@ -25,6 +26,12 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
+
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  subscriptionController.handleStripeWebhook
+);
 
 
 const corsOptions = {

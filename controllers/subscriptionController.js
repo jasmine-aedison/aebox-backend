@@ -204,6 +204,7 @@ exports.deleteSubscription = async (req, res) => {
 };
 // Handle Stripe Webhook Events
 exports.handleStripeWebhook = async (req, res) => {
+  console.log("✅ Stripe webhook endpoint hit");
   const sig = req.headers["stripe-signature"];
   try {
     const event = stripe.webhooks.constructEvent(
@@ -256,7 +257,6 @@ exports.handleStripeWebhook = async (req, res) => {
           status: eventData.status,
           expiry_date: expiryDate,
         });
-
         console.log("Subscription updated for:", customerEmail);
         break;
       // Handle other event types as needed...
