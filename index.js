@@ -12,14 +12,14 @@ const cors = require("cors");
 const openaiRoutes = require("./routes/openaiRoutes");
 const bodyParser = require("body-parser");
 
+
+app.post('/webhook', express.raw({ type: 'application/json' }), subscriptionController.handleStripeWebhook);
+
 // Middleware
 app.use(bodyParser.json({limit: '2mb'}));
 app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
-app.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  subscriptionController.handleStripeWebhook
-);
+// ✅ Stripe webhook - must come BEFORE express.json()
+
 
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
@@ -46,6 +46,7 @@ const corsOptions = {
       'app://.', 'file://',
       "https://www.aeedison.com",
       "https://aeedison.com",
+      'https://version.aeedison.com'
     ];
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);

@@ -135,7 +135,6 @@ exports.updateSubscription = async (req, res) => {
         .eq("username", username);
 
       if (updateError) throw updateError;
-
       return res
         .status(200)
         .json({ message: "Subscription updated successfully" });
