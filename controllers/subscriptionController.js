@@ -204,51 +204,65 @@ exports.deleteSubscription = async (req, res) => {
 // Handle Stripe Webhook Events
 exports.handleStripeWebhook = async (req, res) => {
   console.log("✅ Stripe webhook endpoint hit");
+
   const sig = req.headers["stripe-signature"];
+
+  let event;
   try {
-    const event = stripe.webhooks.constructEvent(
-      req.rawBody,
+    event = stripe.webhooks.constructEvent(
+      req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
-    const eventData = event.data.object;
-    console.log(eventData, "Received Stripe Webhook Event");
+  } catch (err) {
+    console.error("❌ Webhook signature verification failed:", err.message);
+    return res.status(400).json({ message: "Invalid webhook signature" });
+  }
 
-    const customerId = eventData.customer;
+  const { type: eventType, data } = event;
+  const eventData = data.object;
+  console.log(`📨 Received event type: ${eventType}`);
+  console.log(eventData)
+
+  try {
+    const customerId = eventData?.customer;
     if (!customerId) {
-      return res
-        .status(400)
-        .json({ message: "Missing customer ID in webhook data" });
+      console.warn("⚠️ Missing customer ID in event data");
+      console.debug("🧾 Full event data:", JSON.stringify(eventData, null, 2));
+      return res.status(200).json({ received: true }); // still return 200 to acknowledge receipt
     }
 
-    switch (event.type) {
-      case "payment_intent.succeeded":
-        // Fetch customer details for email
+    switch (eventType) {
+      case "payment_intent.succeeded": {
         const customer = await stripe.customers.retrieve(customerId);
-        const customerEmail = customer.email || eventData.receipt_email;
+        const customerEmail = customer?.email || eventData?.receipt_email;
 
         if (!customerEmail) {
-          console.error("Customer email not found for:", customerId);
+          console.error("⚠️ Customer email not found for:", customerId);
           return res.status(400).json({ message: "Customer email not found" });
         }
 
-        let subscriptionType = "Unknown";
+        let subscriptionType = "unknown";
         let expiryDate = null;
 
         if (eventData.invoice) {
-          // Fetch invoice details to get subscription details
           const invoice = await stripe.invoices.retrieve(eventData.invoice);
           if (invoice.subscription) {
             const subscription = await stripe.subscriptions.retrieve(
               invoice.subscription
             );
-            const plan = subscription.items.data[0].plan;
+
+            const plan = subscription?.items?.data?.[0]?.plan;
             subscriptionType =
-              plan?.interval === "month" ? "monthly" : "annual";
-            expiryDate = new Date(subscription.current_period_end * 1000); // Convert Unix timestamp to Date
+              plan?.interval === "month" ? "monthly" :
+              plan?.interval === "year" ? "annual" : "unknown";
+
+            if (subscription?.current_period_end) {
+              expiryDate = new Date(subscription.current_period_end * 1000);
+            }
           }
         }
-        // Update or create subscription record
+
         await Subscription.upsert({
           customer_id: customerId,
           email: customerEmail,
@@ -256,20 +270,34 @@ exports.handleStripeWebhook = async (req, res) => {
           status: eventData.status,
           expiry_date: expiryDate,
         });
-        console.log("Subscription updated for:", customerEmail);
+
+        console.log(`✅ Subscription updated for ${customerEmail}`);
         break;
-      // Handle other event types as needed...
-      case "customer.subscription.deleted":
-        await Subscription.deleteByUsername(eventData.customer_email);
+      }
+
+      case "customer.subscription.deleted": {
+        const customer = await stripe.customers.retrieve(customerId);
+        const email = customer?.email;
+
+        if (!email) {
+          console.warn(`⚠️ No email found for deleted subscription of ${customerId}`);
+          return res.status(400).json({ message: "Email not found for subscription deletion" });
+        }
+
+        await Subscription.deleteByUsername(email);
+        console.log(`❌ Subscription deleted for ${email}`);
         break;
+      }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`ℹ️ Unhandled event type: ${eventType}`);
     }
+
     res.status(200).json({ received: true });
+
   } catch (error) {
-    console.error("Error handling Stripe webhook:", error);
-    res.status(400).json({ message: "Webhook error", error: error.message });
+    console.error("🔥 Error handling Stripe webhook:", error);
+    res.status(500).json({ message: "Internal webhook processing error", error: error.message });
   }
 };
 
