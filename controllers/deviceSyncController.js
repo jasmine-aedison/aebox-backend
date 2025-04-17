@@ -26,9 +26,9 @@ async function getDeviceSync(req, res) {
 
 // Create a new device sync
 async function createDeviceSync(req, res) {
-  const { device_id, sync_status, last_synced } = req.body;
+  const { deviceId, sync_status, last_synced } = req.body;
   try {
-    const { data, error } = await supabase.from('device_sync').insert([{ device_id, sync_status, last_synced }]);
+    const { data, error } = await supabase.from('device_sync').insert([{ deviceId, sync_status, last_synced }]);
     if (error) throw error;
     res.status(201).json(data);
   } catch (err) {
@@ -39,9 +39,9 @@ async function createDeviceSync(req, res) {
 // Update device sync by ID
 async function updateDeviceSync(req, res) {
   const { id } = req.params;
-  const { device_id, sync_status, last_synced } = req.body;
+  const { deviceId, sync_status, last_synced } = req.body;
   try {
-    const { data, error } = await supabase.from('device_sync').update({ device_id, sync_status, last_synced }).eq('id', id);
+    const { data, error } = await supabase.from('device_sync').update({ deviceId, sync_status, last_synced }).eq('id', id);
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {

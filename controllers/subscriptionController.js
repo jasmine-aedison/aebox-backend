@@ -4,24 +4,21 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.createOrUpdateSubscription = async (req, res) => {
   try {
-    const { username, subscription_type, subscription_status, expiry_date, device_id } = req.body;
-    
-    if (!device_id) {
+    const { username, subscription_type, subscription_status, expiry_date, deviceId } = req.body;
+    if (!deviceId) {
       return res.status(400).json({
         message: "Device ID is required",
       });
     }
-  
     // Check if a subscription exists for this username
     const existingSubscriptions = await Subscription.getByUsername(username);
-
     if (existingSubscriptions && existingSubscriptions.length > 0) {
       // If a subscription exists, update it with the latest data
       const updates = {
         subscription_type: subscription_type,
         subscription_status: subscription_status,
         expiry_date: expiry_date,
-        device_id: device_id // Ensure device_id is updated
+        deviceId: deviceId // Ensure device_id is updated
       };
       const updatedSubscription = await Subscription.updateSubscription(
         username,
@@ -46,7 +43,7 @@ exports.createOrUpdateSubscription = async (req, res) => {
         subscription_type,
         subscription_status,
         expiry_date,
-        device_id // now properly passed from request
+        deviceId // now properly passed from request
       });
 
       // Optionally, send a confirmation email for the new subscription
@@ -73,9 +70,9 @@ exports.createOrUpdateSubscription = async (req, res) => {
 // Create a new subscription
 exports.createSubscription = async (req, res) => {
   try {
-    const { username, subscription_type, subscription_status, expiry_date, device_id } = req.body;
+    const { username, subscription_type, subscription_status, expiry_date, deviceId } = req.body;
     
-    if (!device_id) {
+    if (!deviceId) {
       return res.status(400).json({
         message: "Device ID is required",
       });
@@ -86,7 +83,7 @@ exports.createSubscription = async (req, res) => {
       subscription_type,
       subscription_status,
       expiry_date,
-      device_id
+      deviceId
     });
 
     await sendEmail(
@@ -125,10 +122,10 @@ exports.getAllSubscriptions = async (req, res) => {
 
 exports.updateSubscription = async (req, res) => {
   try {
-    const { subscription_status, subscription_type, expiry_date, device_id } = req.body;
+    const { subscription_status, subscription_type, expiry_date, deviceId } = req.body;
     const username = req.params.username;
     
-    if (!device_id) {
+    if (!deviceId) {
       return res.status(400).json({
         message: "Device ID is required",
       });
@@ -152,7 +149,7 @@ exports.updateSubscription = async (req, res) => {
           subscription_type:
             subscription_type || existingSubscription.subscription_type,
           expiry_date: expiry_date || existingSubscription.expiry_date,
-          device_id: device_id || existingSubscription.device_id,
+          deviceId: deviceId || existingSubscription.deviceId,
         })
         .eq("username", username);
 
@@ -170,7 +167,7 @@ exports.updateSubscription = async (req, res) => {
             subscription_status,
             subscription_type,
             expiry_date,
-            device_id
+            deviceId
           },
         ]);
 
@@ -267,7 +264,7 @@ exports.handleStripeWebhook = async (req, res) => {
         }
         
         // Retrieve device_id from metadata if it was passed during checkout
-        const deviceId = eventData?.metadata?.device_id;
+        const deviceId = eventData?.metadata?.deviceId;
         if (!deviceId) {
           console.warn("⚠️ No device ID found in checkout session metadata");
         }
@@ -301,9 +298,9 @@ exports.handleStripeWebhook = async (req, res) => {
           const subscription = await stripe.subscriptions.retrieve(eventData.subscription);
           
           // Try to get device_id from metadata or use existing one
-          let deviceId = subscription?.metadata?.device_id;
+          let deviceId = subscription?.metadata?.deviceId;
           if (!deviceId && existingSubscription && existingSubscription.length > 0) {
-            deviceId = existingSubscription[0].device_id;
+            deviceId = existingSubscription[0].deviceId;
           }
           
           await handleSubscriptionData(subscription, customerEmail, deviceId, isRenewal);
@@ -324,7 +321,7 @@ exports.handleStripeWebhook = async (req, res) => {
         const existingSubscription = await Subscription.getByUsername(customerEmail);
         let deviceId = null;
         if (existingSubscription && existingSubscription.length > 0) {
-          deviceId = existingSubscription[0].device_id;
+          deviceId = existingSubscription[0].deviceId;
         }
         
         // Check if this is just a status update or also renewal
@@ -377,7 +374,7 @@ async function handleSubscriptionData(subscription, email, deviceId, isRenewal) 
     subscription_status: subscription.status || 'active',
     subscription_type: subscriptionType,
     expiry_date: expiryDate,
-    device_id: deviceId
+    deviceId: deviceId
   });
   
   // Log appropriate message based on if this is a renewal
@@ -395,6 +392,8 @@ async function handleSubscriptionData(subscription, email, deviceId, isRenewal) 
   }
   
   // Create payment history record
+
+  // dont have this table 
   try {
     await PaymentHistory.create({
       username: email,
@@ -415,12 +414,11 @@ exports.checkout = async (req, res) => {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-  
-  const { username, subscriptionType, device_id } = req.body;
+  const { username, subscriptionType, deviceId } = req.body;
   console.log(
     username,
     subscriptionType,
-    device_id,
+    deviceId,
     "inside the subscription controller"
   );
   
@@ -428,7 +426,7 @@ exports.checkout = async (req, res) => {
     return res.status(400).json({ message: "Email is required." });
   }
   
-  if (!device_id) {
+  if (!deviceId) {
     return res.status(400).json({ message: "Device ID is required." });
   }
 
@@ -447,11 +445,11 @@ exports.checkout = async (req, res) => {
       ],
       customer_email: username,
       metadata: {
-        device_id: device_id, // Store device_id in metadata to access in webhook
+        deviceId: deviceId, // Store device_id in metadata to access in webhook
       },
       success_url: `https://aebox-website.vercel.app/success/subscription?email=${encodeURIComponent(
         username
-      )}&subscriptionType=${encodeURIComponent(subscriptionType)}&device_id=${encodeURIComponent(device_id)}`,
+      )}&subscriptionType=${encodeURIComponent(subscriptionType)}&deviceId=${encodeURIComponent(deviceId)}`,
       cancel_url: `https://aebox-website.vercel.app/cancel`,
     });
     return res.status(200).json({ checkoutUrl: session.url });
