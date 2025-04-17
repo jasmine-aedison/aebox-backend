@@ -11,5 +11,6 @@ router.get("/", subscriptionController.getAllSubscriptions);  // Get all subscri
 router.put("/:username", subscriptionController.createOrUpdateSubscription);  // Update user subscription
 router.delete("/:username", subscriptionController.deleteSubscription);  // Delete subscription
 router.get("/:username/payments", subscriptionController.getPaymentHistory);  // Get payment history
+router.get("/status", subscriptionController.checkSubscriptionStatus); // NEW ENDPOINT
 
 module.exports = router;
