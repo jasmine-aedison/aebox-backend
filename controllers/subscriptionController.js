@@ -30,7 +30,6 @@ exports.createOrUpdateSubscription = async (req, res) => {
         username,
         updates
       );
-
       // Optionally, send an update confirmation email
       await sendEmail(
         username, // assuming username is the user's email
@@ -112,6 +111,7 @@ exports.createSubscription = async (req, res) => {
 };
 
 exports.getSubscription = async (req, res) => {
+  console.log('in the get sub')
   try {
     const subscription = await Subscription.getByUsername(req.params.username);
     res.status(200).json(subscription);
@@ -122,6 +122,7 @@ exports.getSubscription = async (req, res) => {
 
 // Get all subscriptions (for admin)
 exports.getAllSubscriptions = async (req, res) => {
+  console.log('in the get subsss')
   try {
     const subscriptions = await Subscription.getAll();
     res.status(200).json(subscriptions);
@@ -143,7 +144,6 @@ exports.updateSubscription = async (req, res) => {
         message: "Device ID is required",
       });
     }
-
     // ✅ Check if the subscription exists
     const { data: existingSubscription, error: fetchError } =
       await Subscription.getByUsername(req.params.username);
@@ -301,16 +301,13 @@ exports.handleStripeWebhook = async (req, res) => {
               expiry_date: new Date(subscription.current_period_end * 1000),
               deviceId: deviceId,
             };
-
             await Subscription.upsert(subscriptionData);
-
             console.log(
               `✅ Subscription created for ${customerEmail} with deviceId ${deviceId}`
             );
           }
           break;
         }
-
         // 4. Add a helper function to get subscription type
         function getSubscriptionType(subscription) {
           const plan = subscription?.items?.data?.[0]?.plan;
@@ -547,13 +544,16 @@ exports.checkout = async (req, res) => {
   }
 };
 
-// Check subscription status
+/// Check subscription status
 exports.checkSubscriptionStatus = async (req, res) => {
+  // Log the incoming request to help with debugging
+  console.log("Request query params:", req.query);
+  console.log("Request body:", req.body);
   try {
     const { email, deviceId } = req.query;
-
-    // Validate required parameters
+    // Enhanced validation with more detailed logging
     if (!email) {
+      console.log("Email parameter is missing");
       return res.status(400).json({
         success: false,
         message: "Email parameter is required",
@@ -561,19 +561,18 @@ exports.checkSubscriptionStatus = async (req, res) => {
     }
 
     if (!deviceId) {
+      console.log("DeviceId parameter is missing");
       return res.status(400).json({
         success: false,
         message: "Device ID parameter is required",
       });
     }
-
     console.log(
       `Checking subscription status for email: ${email}, deviceId: ${deviceId}`
     );
-
     // Get subscription from database
     const subscriptions = await Subscription.getByUsername(email);
-
+    
     // Check if subscription exists
     if (!subscriptions || subscriptions.length === 0) {
       console.log(`No subscription found for ${email}`);
@@ -583,7 +582,6 @@ exports.checkSubscriptionStatus = async (req, res) => {
         message: "No active subscription found",
       });
     }
-
     // Get the most recent subscription
     const subscription = subscriptions[0];
 
