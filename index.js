@@ -11,6 +11,7 @@ const app = express();
 const cors = require("cors");
 const openaiRoutes = require("./routes/openaiRoutes");
 const bodyParser = require("body-parser");
+const generateDeviceId = require("../utils/generateDeviceId");
 
 // app.post(
 //   '/api/subscription/webhook',
