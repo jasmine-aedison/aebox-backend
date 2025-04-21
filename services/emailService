@@ -1,7 +1,6 @@
 const {config} = require('dotenv')
 const {createTransport} = require('nodemailer')
 
-
 config(); // Load .env variables
 const email_user  = process.env.EMAIL_USER;
 const email_pass  = process.env.EMAIL_PASS;

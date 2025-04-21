@@ -302,6 +302,11 @@ exports.handleStripeWebhook = async (req, res) => {
               deviceId: deviceId,
             };
             await Subscription.upsert(subscriptionData);
+            await sendEmail(
+              customerEmail, // assuming username is the user's email
+              "Your AeBox Subscription Has Been Updated",
+              `Your AeBox subscription has been updated to a ${subscriptionData.subscription_type} plan. \n\nYour subscription will automatically renew 3 days before ${subscriptionData.expiry_date}.`
+            );
             console.log(
               `✅ Subscription created for ${customerEmail} with deviceId ${deviceId}`
             );
