@@ -106,7 +106,11 @@ async function deleteSpace(req, res) {
     if (data && data.length > 0) {
       console.log("Space deleted successfully", data);
       // Successfully deleted
-      res.status(204).send();
+      return res.status(200).json({
+        message: "Space deleted successfully",
+        deletedId: data[0].id, // or whatever you need to return
+      });
+    
     } else {
       console.log("No space found to delete");
       // No matching record found (even though it was deleted)

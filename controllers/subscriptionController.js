@@ -526,8 +526,8 @@ exports.checkout = async (req, res) => {
         {
           price:
             subscriptionType === "monthly"
-              ? "price_1Qr940GKByHohIkpkzBZY3wj" // Monthly price ID
-              : "price_1Qr93HGKByHohIkpMloXDVCi", // Annual price ID
+              ? "price_1REoe3GKByHohIkpWa0VWsl3" // Monthly price ID
+              : "price_1REoeQGKByHohIkpYFN9B3hY", // Annual price ID
           quantity: 1,
         },
       ],
