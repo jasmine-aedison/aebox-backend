@@ -229,7 +229,7 @@ router.delete('/:id', deleteApplication);
 
 router.get('/box/:box_id' , getApplicationsByBoxId)
 
-router.post('/:box_id/applications/order', updateApplicationOrder); // New endpoint
+router.post('/:box_id/applications/order', updateApplicationOrder);
 
 module.exports = router;
 // 

@@ -90,7 +90,7 @@ async function getApplicationsByBoxId(req, res) {
       .from('applications')
       .select('*')
       .eq('box_id', box_id)
-      .order('order', segítség { ascending: true }); // Sort by order ascending
+      .order('order',{ ascending: true }); // Sort by order ascending
     if (error) throw error;
     res.status(200).json(data);
   } catch (err) {
