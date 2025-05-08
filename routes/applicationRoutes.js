@@ -1,6 +1,6 @@
 // applicationRoutes.js
 const express = require('express');
-const { getApplication, createApplication, updateApplication, deleteApplication, getAllApplications, getApplicationsByBoxId } = require('../controllers/applicationController');
+const { getApplication, createApplication, updateApplication, deleteApplication, getAllApplications, getApplicationsByBoxId, updateApplicationOrder } = require('../controllers/applicationController');
 const router = express.Router();
 
 /**
@@ -228,6 +228,8 @@ router.put('/:id', updateApplication);
 router.delete('/:id', deleteApplication);
 
 router.get('/box/:box_id' , getApplicationsByBoxId)
+
+router.post('/:box_id/applications/order', updateApplicationOrder); // New endpoint
 
 module.exports = router;
 // 
