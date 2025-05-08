@@ -27,7 +27,7 @@ async function getApplication(req, res) {
 // Create a new application
 // Create a new application
 async function createApplication(req, res) {
-  const { name, description, box_id, viewId } = req.body; // Added viewId
+  const { name, box_id, viewId } = req.body; // Added viewId
   try {
     // Get the current max order for the box
     const { data: maxOrderData, error: maxOrderError } = await supabase
@@ -43,7 +43,7 @@ async function createApplication(req, res) {
 
     const { data, error } = await supabase
       .from('applications')
-      .insert([{ name, description, box_id, order: newOrder, viewId }]) // Include order and viewId
+      .insert([{ name, box_id, order: newOrder, viewId }]) // Include order and viewId
       .select();
     if (error) throw error;
     res.status(201).json(data);
@@ -56,11 +56,11 @@ async function createApplication(req, res) {
 // Update application by ID
 async function updateApplication(req, res) {
   const { id } = req.params;
-  const { name, description, viewId } = req.body; // Added viewId
+  const { name, viewId } = req.body; // Added viewId
   try {
     const { data, error } = await supabase
       .from('applications')
-      .update({ name, description, viewId }) // Include viewId
+      .update({ name, viewId }) // Include viewId
       .eq('id', id)
       .select();
     if (error) throw error;
