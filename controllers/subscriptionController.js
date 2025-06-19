@@ -284,8 +284,6 @@ exports.handleStripeWebhook = async (req, res) => {
             console.warn("⚠️ No device ID found in checkout session metadata");
             // Continue anyway but log it - the frontend will verify device ID
           }
-
-          // If there's a subscription in the session, retrieve it
           let subscriptionId = eventData?.subscription;
           if (subscriptionId) {
             const subscription = await stripe.subscriptions.retrieve(
@@ -591,16 +589,16 @@ exports.checkSubscriptionStatus = async (req, res) => {
     const subscription = subscriptions[0];
 
     // Check if the deviceId matches
-    if (subscription.deviceId !== deviceId) {
-      console.log(
-        `Device ID mismatch for ${email}. Expected: ${subscription.deviceId}, Got: ${deviceId}`
-      );
-      return res.status(200).json({
-        success: true,
-        active: false,
-        message: "Device ID does not match subscription",
-      });
-    }
+    // if (subscription.deviceId !== deviceId) {
+    //   console.log(
+    //     `Device ID mismatch for ${email}. Expected: ${subscription.deviceId}, Got: ${deviceId}`
+    //   );
+    //   return res.status(200).json({
+    //     success: true,
+    //     active: false,
+    //     message: "Device ID does not match subscription",
+    //   });
+    // }
 
     // Check if subscription is active
     const isActive = subscription.subscription_status === "active";
